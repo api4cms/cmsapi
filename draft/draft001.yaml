@@ -1,0 +1,779 @@
+swagger: '2.0'
+info:
+  description: CMS API - draft 0.0.1
+  version: 0.0.1
+  title: CMS API
+  contact:
+    email: api4cms@galicea.org
+definitions:
+  Atom:
+    description: "see: https://bradfrost.com/blog/post/atomic-web-design/"
+    type: object
+    required:
+      - type
+      - uuid
+      - content
+    properties:
+      uuid:
+        type: string
+      type:
+        type: string
+      content:
+        type: string
+      classes:
+        type: array
+        items:
+          type: string
+  Molecule:
+    type: object
+    required:
+      - uuid
+      - atoms
+    properties:
+      uuid:
+        type: string
+      type:
+        type: string
+      atoms:
+        type: array
+        items:
+          $ref: '#/definitions/Atom'
+      title:
+        type: string
+      link:
+        type: string
+      description:
+        type: string
+      item_id:
+        type: integer
+        description: 'Reference to the item (page, post, ...)'
+      children:
+        type: array
+        items:
+          $ref: '#/definitions/Molecule'
+  MenuMolecule:
+    type: object
+    required:
+      - title
+      - link
+      - order
+    properties:
+      title:
+        type: string
+      order:
+        type: string
+      link:
+        type: string
+      type:
+        description: "Menu Item"
+        type: string
+      description:
+        type: string
+      item_id:
+        type: integer
+        description: 'Reference to the item (page, post, ...)'
+      uuid:
+        type: string
+      classes:
+        type: array
+        items:
+          type: string
+      children:
+        type: array
+        items:
+          $ref: '#/definitions/MenuMolecule'
+  PostMolecule:
+    type: object
+    properties:
+      uuid:
+        type: string
+      title:
+        type: string
+      published:
+        type: string
+        format: date-time
+      modified:
+        type: string
+        format: date-time
+      headline:
+        type: string
+      featured_media:
+        type: object
+        properties:
+          thumbnail:
+            type: string
+          medium:
+            type: string
+          medium_large:
+            type: string
+          large:
+            type: string
+          big-size:
+            type: string
+          big-size_mobile:
+            type: string
+          mid-size:
+            type: string
+          mid-size_mobile:
+            type: string
+      link:
+        type: string
+      permalink:
+        type: string
+        description: Use to access the object by REST API
+      excerpt:
+        type: string
+  AuthorMolecule:
+    type: object
+    properties:
+      data:
+        properties:
+          uuid:
+            type: string
+          link:
+            type: string
+          permalink:
+            type: string
+          name:
+            type: string
+          picture:
+            type: string
+          type:
+            type: array
+            items:
+              type: string
+              enum:
+                - author
+                - writer
+                - professional
+            default: author
+          social_profiles:
+            type: object
+            properties:
+              twitter:
+                type: string
+              facebook:
+                type: string
+              instagram:
+                type: string
+              linkedin:
+                type: string
+  SidebarOrganism:
+    type: object
+    properties:
+      id:
+        type: string
+      widgets:
+        type: array
+        items:
+          $ref: '#/definitions/WidgetsOrganism'
+  PostOrganism:
+        type: array
+        items:
+            $ref: '#/definitions/PostMolecule'
+        properties:
+          id:
+            type: integer
+          options:
+            type: object
+            properties:
+              author:
+                type: string
+              date:
+                type: string
+              comments:
+                type: boolean
+                enum:
+                  - true
+                  - false
+                default: true
+              sticky:
+                type: boolean
+                default: false
+                description: The object should be treated as sticky?
+              is_sponsored:
+                type: boolean
+                default: false
+              sponsor:
+                type: string
+              verification_status:
+                type: string
+                enum:
+                  - nil
+                  - fact_checked
+                  - evidence_based
+                default: nil
+              template:
+                type: string
+          uuid:
+            type: string
+          permalink:
+            type: string
+          link:
+            type: string
+          title:
+            type: string
+          headline:
+            type: string
+          excerpt:
+            type: string
+          content:
+            type: string
+          featured_media:
+            type: object
+            properties:
+              thumbnail:
+                type: string
+              medium:
+                type: string
+              medium_large:
+                type: string
+              large:
+                type: string
+              big-size:
+                type: string
+              big-size_mobile:
+                type: string
+              mid-size:
+                type: string
+              mid-size_mobile:
+                type: string
+          bibliography:
+            type: string
+          author:
+            $ref: '#/definitions/AuthorMolecule'
+          reviewed_by:
+            $ref: '#/definitions/AuthorMolecule'
+          published:
+            type: string
+            format: date-time
+          modified:
+            type: string
+            format: date-time
+          reviewed:
+            type: string
+            format: date-time
+          metas:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+              robots:
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - index
+                    - follow
+                    - nofollow
+                    - noindex
+                default:
+                  - index
+                  - follow
+              'og:locale':
+                type: string
+                enum:
+                  - en
+                  - pl
+                  - de
+                default: en
+              'og:type':
+                type: string
+              'og:site_name':
+                type: string
+              'og:image':
+                type: string
+              'og:image:secure_url':
+                type: string
+              'article:publisher':
+                type: string
+              'article:tag':
+                type: array
+                items:
+                  type: string
+                example:
+                  - coagulo
+                  - metoo
+              'article:section':
+                type: string
+              'twitter:card':
+                type: string
+              'twitter:site':
+                type: string
+              'twitter:creator':
+                type: string
+  WidgetMolecule:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      widgets:
+        type: array
+        items:
+          $ref: '#/definitions/Atom'
+  WidgetsOrganism:
+    type: object
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+      options:
+        type: object
+        properties:
+          title:
+            type: string
+          posts_per_page:
+            type: integer
+          offset:
+            type: integer
+          order:
+            type: string
+            enum:
+              - date
+              - rand
+              - meta_value_num
+            description: |
+            default: date
+          post_type:
+            type: array
+            items:
+              type: string
+            example:
+              - post
+          postcount:
+            type: integer
+      grid:
+        type: array
+        items:
+          $ref: '#/definitions/WidgetMolecule'
+  GalleryMolecule:
+    type: object
+    properties:
+      id:
+        type: integer
+      type:
+        type: string
+      options:
+        type: object
+        properties:
+          target:
+            type: string
+          source:
+            type: string
+          campaign:
+            type: string
+          medium:
+            type: string
+          tabs:
+            type: array
+            items:
+              type: string
+              example:
+                - services.recent
+                - professionals.featured
+          per_page:
+            type: integer
+          offset:
+            type: integer
+          order:
+            type: string
+      content:
+        type: array
+        items:
+          type: object
+          properties:
+            services.recent:
+              type: array
+              items:
+                type: object
+                properties:
+                  _id:
+                    type: integer
+                  name:
+                    type: string
+                  price:
+                    type: object
+                    properties:
+                      usd:
+                        type: integer
+                      eur:
+                        type: integer
+                  uuid:
+                    type: string
+                  instructors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        displayName:
+                          type: string
+                        username:
+                          type: string
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                  subtitle:
+                    type: string
+                  image:
+                    type: string
+                  type:
+                    type: string
+                  seo:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      description:
+                        type: string
+                  total:
+                    type: integer
+                  likeRate:
+                    type: integer
+                  campaign:
+                    type: object
+                    properties:
+                      discount:
+                        type: integer
+                      title:
+                        type: string
+                      short_summary:
+                        type: string
+                      start:
+                        type: string
+                      expired:
+                        type: string
+                      show_countdown:
+                        type: boolean
+            professionals.featured:
+              type: array
+              items:
+                type: object
+                properties:
+                  my_services:
+                    type: object
+                    properties:
+                      configuration:
+                        type: object
+                      categories:
+                        type: object
+                      reviews:
+                        type: array
+                        items:
+                          type: object
+                      status:
+                        type: string
+                      active:
+                        type: boolean
+                      _id:
+                        type: string
+                      author:
+                        type: string
+                      professional_type:
+                        type: string
+                      prices:
+                        type: object
+                      cancellation_policy:
+                        type: string
+                      title:
+                        type: string
+                      uuid:
+                        type: string
+                      created:
+                        type: string
+                      included:
+                        type: array
+                        items:
+                          type: object
+                      restrictions:
+                        type: array
+                        items:
+                          type: object
+                      image:
+                        type: string
+                      service_description:
+                        type: string
+                      short_summary:
+                        type: string
+                      service_info:
+                        type: object
+                      stars:
+                        type: integer
+                  public_profile:
+                    type: boolean
+                  _id:
+                    type: string
+                  displayName:
+                    type: string
+                  username:
+                    type: string
+                  picture:
+                    type: string
+                  user_info:
+                    type: object
+                  priceAverage:
+                    type: string
+                  stars:
+                    type: integer
+                  reviews:
+                    type: integer
+  PostPattern:
+    type: object
+    properties:
+      posts:
+          $ref: '#/definitions/PostOrganism'
+      related_links:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                title:
+                  type: string
+                uuid:
+                  type: string
+                permalink:
+                  type: string
+                link:
+                  type: string
+      previous_post:
+            type: string
+      next_post:
+            type: string
+      previous_posts:
+            type: array
+            items: 
+              $ref: '#/definitions/PostMolecule'
+      next_posts:
+            type: array
+            items:
+              $ref: '#/definitions/PostMolecule'
+      size:
+        type: integer
+      pages:
+        type: integer
+  PostSearchPattern:
+    type: object
+    properties:
+      count:
+        type: integer
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          title:
+            type: string
+          published:
+            type: string
+            format: date-time
+          modified:
+            type: string
+            format: date-time
+          headline:
+            type: string
+          featured_media:
+            type: object
+            properties:
+              thumbnail:
+                type: string
+              medium:
+                type: string
+              medium_large:
+                type: string
+              large:
+                type: string
+              big-size:
+                type: string
+              big-size_mobile:
+                type: string
+              mid-size:
+                type: string
+              mid-size_mobile:
+                type: string
+          uuid:
+            type: string
+          link:
+            type: string
+          permalink:
+            type: string
+            description: Use to access the object by REST API
+          excerpt:
+            type: string
+      related_tags:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            uuid:
+              type: string
+            permalink:
+              type: string
+            link:
+              type: string
+            description:
+              type: string
+      related_links:
+        type: array
+        items:
+          type: object
+          properties:
+            id:
+              type: integer
+            title:
+              type: string
+            uuid:
+              type: string
+            permalink:
+              type: string
+            link:
+              type: string
+      options:
+        type: object
+        properties:
+          template:
+            type: string
+            enum:
+              - tag
+              - category
+              - user
+              - post
+              - page
+              - not-found
+  GridPostPattern:
+    type: object
+    properties:
+      id:
+        type: string
+      widgets:
+        type: array
+        items:
+          $ref: '#/definitions/PostOrganism'
+  PageRowPattern:
+    type: object
+    properties:
+      id:
+        type: string
+      gallery:
+          $ref: '#/definitions/GalleryMolecule'
+      widgets:
+        type: array
+        items:
+          $ref: '#/definitions/PostOrganism'
+  Page:
+    type: object
+    properties:
+      uuid:
+        type: string
+      pattern:
+        type: string
+      singlePost:
+        $ref: '#/definitions/PostPattern'
+      gridPost:
+        $ref: '#/definitions/GridPostPattern'
+      postSearch:
+        $ref: '#/definitions/PostSearchPattern'
+      pageRows:
+        type: array
+        items:
+          $ref: '#/definitions/PageRowPattern'
+      searchResult:
+        $ref: '#/definitions/PostSearchPattern'
+paths:
+  '/cmsapi/menu/{uuid}':
+    get:
+      tags:
+        - menus
+      summary: Find menu by location uuid
+      description: Returns a single menu
+      parameters:
+        - name: uuid
+          in: path
+          description: location uuid of menu to return
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MenuMolecule'
+        '404':
+          description: A object with the specified was not found.
+        '500':
+          description: Unexpected error.
+  '/cmsapi/sidebar/{uuid}':
+    get:
+      tags:
+        - sidebars
+      summary: Finds sidebars by uuid
+      parameters:
+        - name: uuid
+          in: path
+          description: uuid of sidebar to return
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SidebarOrganism'
+        '404':
+          description: A object with the specified was not found.
+        '500':
+          description: Unexpected error.
+  '/cmsapi/page/{uri}':
+    get:
+      tags:
+        - home
+      summary: Get page description
+      parameters:
+        - name: uri
+          in: path
+          description: page
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Page'
+        '500':
+          description: Unexpected error.
+  '/cmsapi/post/{postId}':
+    get:
+      tags:
+        - post
+      summary: Post for page
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/PostOrganism'
+        '404':
+          description: A object with the specified was not found.
+        '500':
+          description: Unexpected error.
